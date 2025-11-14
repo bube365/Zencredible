@@ -3,7 +3,17 @@ import { Search } from "lucide-react";
 import BorrowerCard from "../components/BorrowerCard";
 import { supabase } from "../lib/supabase";
 import { Navbar } from "../components/Navbar";
+import { useFetchCreditScoreQuery } from "../store/api/authApi";
+import { Loader } from "../common/loader";
+
 export default function Dashboard({ onSelectBorrower }) {
+  const { data, error, isLoading, isFetching } = useFetchCreditScoreQuery();
+
+  console.log(data?.data?.rows);
+
+  console.log(isFetching);
+  console.log(isLoading);
+
   const [borrowers, setBorrowers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
@@ -28,10 +38,10 @@ export default function Dashboard({ onSelectBorrower }) {
     }
   };
 
-  const filteredBorrowers = borrowers.filter(
-    (borrower) =>
-      borrower.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      borrower.business_name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredBorrowers = data?.data?.rows.filter(
+    (data) =>
+      data?.user?.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      data?.user?.businessName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -61,13 +71,15 @@ export default function Dashboard({ onSelectBorrower }) {
           </div>
         </div>
 
-        {loading ? (
+        {isFetching || isLoading ? (
           <div className="text-center py-12">
-            <div className="text-gray-500">Loading borrowers...</div>
+            <Loader text="Please wait..." />
           </div>
         ) : filteredBorrowers.length === 0 ? (
           <div className="text-center py-12">
-            <div className="text-gray-500">No borrowers found</div>
+            <div className="text-gray-500">
+              No potential borrowers to display at this time
+            </div>{" "}
           </div>
         ) : (
           <div className="space-y-4">

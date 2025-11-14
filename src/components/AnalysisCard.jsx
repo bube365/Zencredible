@@ -1,8 +1,13 @@
 import { CheckCircle2, AlertTriangle } from "lucide-react";
 
 export default function AnalysisCard({ status, description }) {
-  const Icon = status === "success" ? CheckCircle2 : AlertTriangle;
-  const iconColor = status === "success" ? "text-green-500" : "text-yellow-500";
+  const Icon = status === "positive" ? CheckCircle2 : AlertTriangle;
+  const iconColor =
+    status === "positive"
+      ? "text-green-500"
+      : status === "warning"
+      ? "text-yellow-500"
+      : "text-red-700";
   const bgColor = status === "success" ? "bg-green-50" : "bg-yellow-50";
 
   return (

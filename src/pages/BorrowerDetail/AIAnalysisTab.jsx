@@ -7,6 +7,7 @@ import { supabase } from "../../lib/supabase";
 export default function AIAnalysisTab({ borrower }) {
   const [analyses, setAnalyses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
     fetchAnalyses();
@@ -33,43 +34,6 @@ export default function AIAnalysisTab({ borrower }) {
     return <div className="p-6">Loading...</div>;
   }
 
-  const aiPoweredAnalyses = analyses.filter((a) =>
-    ["correlation", "cashflow", "round_tripping", "personal_usage"].includes(
-      a.analysis_type
-    )
-  );
-
-  const roundTrippingAnalysis = analyses.find(
-    (a) => a.analysis_type === "round_tripping"
-  );
-
-  const aiPoweredAnalysess = [
-    {
-      id: 1,
-      status: "success",
-      description:
-        "Strong correlation (92%) between sales receipts timestamps and bank deposits, indicating genuine business transactions.",
-    },
-    {
-      id: 2,
-      status: "success",
-      description:
-        "Consistent monthly cash flow pattern over 14 months with positive net income averaging ₦230,000/month.",
-    },
-    {
-      id: 3,
-      status: "success",
-      description:
-        "Low round-tripping detected (8%), well within acceptable threshold. Most flagged transactions have valid business justification.",
-    },
-    {
-      id: 4,
-      status: "warning",
-      description:
-        "Irregular transaction spike detected in April — manual review suggested.",
-    },
-  ];
-
   return (
     <div className="space-y-6">
       <section className="bg-white rounded-lg p-6">
@@ -83,23 +47,21 @@ export default function AIAnalysisTab({ borrower }) {
         </div>
 
         <div className="space-y-3">
-          {aiPoweredAnalysess.map((analysis) => (
+          {borrower?.creditFactors?.map((analysis, idx) => (
             <AnalysisCard
-              key={analysis.id}
-              // type={analysis.analysis_type}
-              status={analysis.status}
-              description={analysis.description}
-              // percentage={analysis.percentage}
+              key={idx}
+              status={analysis.impact}
+              description={analysis.value}
             />
           ))}
         </div>
       </section>
 
-      {roundTrippingAnalysis && (
+      {borrower?.riskAnalysis?.roundTripTransactions?.details && (
         <section className="bg-white rounded-lg p-6">
           <div className="flex items-center gap-2 mb-4">
-            <span className="bg-[#DCFCE7] p-2 rounded-lg">
-              <AlertTriangle className="w-4 h-4 text-green-600" />
+            <span className="bg-[#fbc8c8] p-2 rounded-lg">
+              <AlertTriangle className="w-4 h-4 text-red-700" />
             </span>
             <h3 className="font-semibold text-gray-900">
               Round-Tripping Analysis
@@ -112,77 +74,78 @@ export default function AIAnalysisTab({ borrower }) {
                 Round-trip transaction detection
               </span>
               <span className="text-sm font-semibold text-gray-900">
-                {roundTrippingAnalysis.percentage}%
+                {borrower?.riskAnalysis?.roundTripTransactions?.percentage}%
               </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
               <div
-                className="h-full bg-gray-900 transition-all duration-300 rounded-full"
-                style={{ width: `${roundTrippingAnalysis.percentage}%` }}
+                className="h-full bg-red-700 transition-all duration-300 rounded-full"
+                style={{
+                  width: `${borrower?.riskAnalysis?.roundTripTransactions?.percentage}%`,
+                }}
               />
             </div>
           </div>
 
           <div className="bg-white rounded-lg p-4 ">
             <p className="text-sm font-medium text-gray-900 mb-3">
-              Our AI model identified 12 potential round-trip transactions by
-              analyzing:
+              Our AI model identified{" "}
+              <span className="font-bold text-lg">
+                {borrower?.riskAnalysis?.roundTripTransactions?.detected}
+              </span>{" "}
+              potential round-trip transactions by analyzing:
             </p>
             <ul className="space-y-2 text-sm text-gray-700">
-              <li className="flex items-start gap-2">
-                <span className="text-gray-400 mt-0.5">•</span>
-                <span>
-                  Same day deposits and withdrawals of similar amounts
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-gray-400 mt-0.5">•</span>
-                <span>
-                  Repetitive transaction patterns with consistent counterparties
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-gray-400 mt-0.5">•</span>
-                <span>
-                  Unusual transaction velocity during specific periods
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-gray-400 mt-0.5">•</span>
-                <span>
-                  Cross-referenced with sales receipts and records timestamps
-                </span>
-              </li>
+              {borrower?.riskAnalysis?.roundTripTransactions?.details?.map(
+                (detail) => {
+                  return (
+                    <li className="flex items-start gap-2">
+                      <span className="text-gray-400 mt-0.5">•</span>
+                      <span>{detail}</span>
+                    </li>
+                  );
+                }
+              )}
             </ul>
           </div>
         </section>
       )}
 
-      <section className="bg-white rounded-lg p-6">
-        <div className="flex items-center gap-2 mb-4">
+      <section className="bg-white rounded-lg p-6 cursor-pointer hover:shadow-md transition-shadow">
+        <div
+          className="flex items-center gap-2 mb-4"
+          onClick={() => setShowDetails((prev) => !prev)}
+        >
           <span className="bg-[#DCFCE7] p-2 rounded-lg">
             <AlertTriangle className="w-4 h-4 text-green-600" />
-          </span>{" "}
+          </span>
           <h3 className="font-semibold text-gray-900">
-            Business Flow Validation
+            Business Flow Validation{" "}
+            {!showDetails && (
+              <span className="text-xs text-gray-500 ml-2 bg-white p-2 shadow-md">
+                Coming Soon
+              </span>
+            )}
           </h3>
         </div>
 
-        <div className="space-y-6">
-          <ProgressBar
-            label="Sales Receipts Match"
-            description="92% of bank inflows match timestamped sales receipts"
-            percentage={92}
-            color="bg-gray-900"
-          />
+        {showDetails && (
+          <div className="space-y-6 mt-4">
+            <ProgressBar
+              label="Sales Receipts Match"
+              description="92% of bank inflows match timestamped sales receipts"
+              percentage={92}
+              color="bg-gray-900"
+            />
 
-          <ProgressBar
-            label="Sales Records Alignment"
-            description="89% of transactions align with submitted sales records"
-            percentage={89}
-            color="bg-gray-900"
-          />
-        </div>
+            <ProgressBar
+              label="Sales Records Alignment"
+              description="89% of transactions align with submitted sales records"
+              percentage={89}
+              color="bg-gray-900"
+            />
+          </div>
+        )}
       </section>
     </div>
   );

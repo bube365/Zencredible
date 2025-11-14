@@ -25,6 +25,8 @@ export default function BorrowerDetail({ borrower, onBack }) {
     return riskLevel.toLowerCase();
   };
 
+  console.log(borrower);
+
   return (
     <div className="min-h-screen bg-[#fef8f8]">
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
@@ -38,18 +40,18 @@ export default function BorrowerDetail({ borrower, onBack }) {
           </button>
 
           <div className="flex items-start gap-2 md:gap-4">
-            <Avatar name={borrower.name} size="md" />
+            <Avatar name={borrower?.user?.fullName} size="md" />
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-1">
                 <h1 className="text-sm md:text-xl font-bold text-gray-900">
-                  {borrower.name}
+                  {borrower?.user?.fullName}
                 </h1>
-                <Badge variant={getRiskVariant(borrower.risk_level)}>
-                  {borrower.risk_level} RISK
+                <Badge variant={getRiskVariant(borrower.riskLevel)}>
+                  {borrower?.riskLevel} RISK
                 </Badge>
               </div>
               <p className="text-gray-600 text-xs md:text-sm">
-                {borrower.business_name}
+                {borrower?.user?.businessName}
               </p>
             </div>
           </div>
@@ -61,8 +63,8 @@ export default function BorrowerDetail({ borrower, onBack }) {
           <MetricCard
             icon={Shield}
             label="Credit Score"
-            value={borrower.credit_score}
-            subtitle="Out of 100"
+            value={borrower.creditScore}
+            subtitle="Out of 850"
             iconColor="text-[#770C05] bg-[#770C0529]  rounded-md"
             textColor={`${"text-[#0A0A0A]"}`}
           />
@@ -70,15 +72,15 @@ export default function BorrowerDetail({ borrower, onBack }) {
           <MetricCard
             icon={LucideInfo}
             label="Default Risk"
-            value={`${borrower.default_risk}%`}
+            value={`${borrower.defaultProbability}%`}
             subtitle="Probability"
             iconColor="text-[#00A63E] bg-[#DCFCE7]  rounded-md"
-            textColor={BadgeColor(borrower.risk_level)}
+            textColor={BadgeColor(borrower.riskLevel)}
           />
           <MetricCard
             icon={TrendingUp}
             label="Max Loan to Offer"
-            value={formatCurrency(borrower.max_offer)}
+            value={formatCurrency(borrower.maxLoanAmount)}
             subtitle="Based on risk assessment"
             iconColor="text-[#00A63E] bg-[#DCFCE7]  rounded-md"
             textColor={``}
@@ -86,10 +88,10 @@ export default function BorrowerDetail({ borrower, onBack }) {
           <MetricCard
             icon={TrendingDown}
             label="Expected Loss"
-            value={formatCurrency(borrower.expected_loss)}
+            value={formatCurrency(borrower.expectedLoss)}
             subtitle="If default occurs"
             iconColor="text-purple-500 rounded-md bg-[#F3E8FF]"
-            textColor={``}
+            textColor={BadgeColor("high")}
           />
         </div>
 
