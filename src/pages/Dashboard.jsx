@@ -9,11 +9,6 @@ import { Loader } from "../common/loader";
 export default function Dashboard({ onSelectBorrower }) {
   const { data, error, isLoading, isFetching } = useFetchCreditScoreQuery();
 
-  console.log(data?.data?.rows);
-
-  console.log(isFetching);
-  console.log(isLoading);
-
   const [borrowers, setBorrowers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);

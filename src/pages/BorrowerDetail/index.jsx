@@ -25,8 +25,6 @@ export default function BorrowerDetail({ borrower, onBack }) {
     return riskLevel.toLowerCase();
   };
 
-  console.log(borrower);
-
   return (
     <div className="min-h-screen bg-[#fef8f8]">
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
