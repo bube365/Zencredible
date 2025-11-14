@@ -9,34 +9,7 @@ import { Loader } from "../common/loader";
 export default function Dashboard({ onSelectBorrower }) {
   const { data, error, isLoading, isFetching } = useFetchCreditScoreQuery();
 
-  console.log(data?.data?.rows);
-
-  console.log(isFetching);
-  console.log(isLoading);
-
-  const [borrowers, setBorrowers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchBorrowers();
-  }, []);
-
-  const fetchBorrowers = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("borrowers")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setBorrowers(data || []);
-    } catch (error) {
-      console.error("Error fetching borrowers:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const filteredBorrowers = data?.data?.rows.filter(
     (data) =>
